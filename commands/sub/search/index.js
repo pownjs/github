@@ -4,6 +4,7 @@ exports.yargs = {
 
     builder: (yargs) => {
         require('../../lib/concurrency').installOptions(yargs)
+        require('../../lib/authentication').installOptions(yargs)
 
         yargs.option('category', {
             describe: 'Search category',
@@ -26,9 +27,12 @@ exports.yargs = {
 
         const Github = require('../../../lib/github')
 
-        const github = new Github()
+        const options = {}
 
-        require('../../lib/concurrency').handleOptions(argv, github)
+        require('../../lib/concurrency').handleOptions(argv, options)
+        require('../../lib/authentication').handleOptions(argv, options)
+
+        const github = new Github(options)
 
         for (let cat of category) {
             for await (let item of github.search(term, cat)) {

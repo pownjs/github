@@ -7,10 +7,10 @@ const installOptions = (yargs) => {
     })
 }
 
-const handleOptions = (argv, github) => {
+const handleOptions = (argv, options) => {
     const { concurrency } = argv
 
-    github.scheduler.update({ maxConcurrent: concurrency })
+    options.maxConcurrent = concurrency
 }
 
 module.exports = {
