@@ -5,6 +5,7 @@ exports.yargs = {
 
     builder: (yargs) => {
         yargs.command(require('./sub/search').yargs)
+        yargs.command(require('./sub/repos').yargs)
         yargs.command(require('./sub/user').yargs)
         yargs.command(require('./sub/gists').yargs)
         yargs.command(require('./sub/org').yargs)
