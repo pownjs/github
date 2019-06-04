@@ -1,14 +1,21 @@
 exports.yargs = {
-    command: 'repos <user|org>',
+    command: 'repos <login>',
     describe: 'List repos',
 
     builder: (yargs) => {
         require('../../lib/concurrency').installOptions(yargs)
         require('../../lib/authentication').installOptions(yargs)
+
+        yargs.options('type', {
+            description: 'Repository type',
+            type: 'string',
+            default: 'all',
+            choices: ['all', 'public', 'private', 'forks', 'sources', 'member']
+        })
     },
 
     handler: async(argv) => {
-        const { user } = argv
+        const { login, type } = argv
 
         const Github = require('../../../lib/github')
 
@@ -19,7 +26,7 @@ exports.yargs = {
 
         const github = new Github(options)
 
-        for await (let item of github.repos(user)) {
+        for await (let item of github.repos(login, { type })) {
             console.table(item)
         }
     }

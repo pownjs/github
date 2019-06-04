@@ -1,5 +1,5 @@
 exports.yargs = {
-    command: 'user <user>',
+    command: 'user <login>',
     describe: 'Show user',
 
     builder: (yargs) => {
@@ -8,7 +8,7 @@ exports.yargs = {
     },
 
     handler: async(argv) => {
-        const { user } = argv
+        const { login } = argv
 
         const Github = require('../../../lib/github')
 
@@ -19,6 +19,6 @@ exports.yargs = {
 
         const github = new Github(options)
 
-        console.table(await github.user(user))
+        console.table(await github.user(login))
     }
 }

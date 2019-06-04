@@ -1,5 +1,5 @@
 exports.yargs = {
-    command: 'members <org>',
+    command: 'members <login>',
     describe: 'List members',
 
     builder: (yargs) => {
@@ -8,7 +8,7 @@ exports.yargs = {
     },
 
     handler: async(argv) => {
-        const { org } = argv
+        const { login } = argv
 
         const Github = require('../../../lib/github')
 
@@ -19,7 +19,7 @@ exports.yargs = {
 
         const github = new Github(options)
 
-        for await (let item of github.members(org)) {
+        for await (let item of github.members(login)) {
             console.table(item)
         }
     }
