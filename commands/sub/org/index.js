@@ -3,7 +3,7 @@ exports.yargs = {
     describe: 'Show org',
 
     builder: (yargs) => {
-        require('../../lib/tryfetch').installOptions(yargs)
+        require('../../lib/retryrequest').installOptions(yargs)
         require('../../lib/concurrency').installOptions(yargs)
         require('../../lib/authentication').installOptions(yargs)
     },
@@ -15,7 +15,7 @@ exports.yargs = {
 
         const options = {}
 
-        require('../../lib/tryfetch').handleOptions(argv, options)
+        require('../../lib/retryrequest').handleOptions(argv, options)
         require('../../lib/concurrency').handleOptions(argv, options)
         require('../../lib/authentication').handleOptions(argv, options)
 

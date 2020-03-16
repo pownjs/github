@@ -1,11 +1,11 @@
 const installOptions = (yargs) => {
-    yargs.option('try-fetch', {
+    yargs.option('retry-request', {
         describe: 'Repeat failed requests',
         type: 'boolean',
         default: true
     })
 
-    yargs.option('try-fetch-delay', {
+    yargs.option('retry-request-delay', {
         describe: 'The delay before failed requests are repeated',
         type: 'number',
         default: 0
@@ -13,10 +13,10 @@ const installOptions = (yargs) => {
 }
 
 const handleOptions = (argv, options) => {
-    const { tryFetch, tryFetchDelay } = argv
+    const { retryRequest, retryRequestDelay } = argv
 
-    options.tryFetch = tryFetch
-    options.tryFetchDelay = tryFetchDelay
+    options.retryRequest = retryRequest
+    options.retryRequestDelay = retryRequestDelay
 }
 
 module.exports = {
