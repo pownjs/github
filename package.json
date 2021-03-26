@@ -5,7 +5,9 @@
   "main": "lib/index.js",
   "scripts": {
     "github": "POWN_ROOT=. pown-cli github",
-    "test": "mocha"
+    "usage": "POWN_ROOT=. pown-cli github --help",
+    "build": "true",
+    "test": "true"
   },
   "repository": {
     "type": "git",
@@ -23,15 +25,16 @@
   },
   "homepage": "https://github.com/pownjs/pown-github#readme",
   "devDependencies": {
-    "@pown/cli": "^2.24.0"
+    "@pown/cli": "^2.30.0",
+    "@pown/toolchain": "^2.1.0"
   },
   "pown": {
     "commands": [
-      "commands/github.js"
+      "commands/github"
     ]
   },
   "dependencies": {
-    "@pown/async": "^2.9.0",
-    "@pown/request": "^2.15.0"
+    "@pown/async": "^2.11.0",
+    "@pown/request": "^2.26.1"
   }
 }
