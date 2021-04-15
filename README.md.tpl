@@ -6,7 +6,7 @@
 
 # Pown Github
 
-Pown Github is a library and a tool around the github API.
+Pown Github is a library and a tool to work with the Github API. The project expors both a command line interface pown as well as a transform for @pown/recon.
 
 ## Credits
 
@@ -72,4 +72,14 @@ $ POWN_ROOT=. pown github
 
 ```
 {{usage}}
+```
+
+## Pown Recon Usage
+
+> **WARNING**: This pown recon transform is currently under development and as a result will be subject to breaking changes.
+
+```bash
+$ pown modules intall @pown/recon # install recon module
+$ pown modules install @pown/github # install github module
+$ pown recon transform github_user pdparchitect # do recon transformation
 ```
