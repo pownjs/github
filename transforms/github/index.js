@@ -267,6 +267,8 @@ class githubSearchUsers extends Transform {
                     continue
                 }
 
+                this.info(`found user ${user}`)
+
                 results.push({ type: GITHUB_USER_TYPE, label: login, image: avatar_url, props: { login, uri, info }, edges: [source] })
             }
             catch (e) {
