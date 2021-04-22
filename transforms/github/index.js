@@ -198,6 +198,13 @@ class githubSearchUsers extends Transform {
                 alias: ['filter-company']
             },
 
+            emailFilter: {
+                description: 'Regex to filter based on email domain.',
+                type: 'string',
+                default: '',
+                alias: ['filter-email']
+            },
+
             andFilter: {
                 description: 'Treat all filters as if they are in and condition',
                 type: 'boolean',
@@ -223,7 +230,7 @@ class githubSearchUsers extends Transform {
     async handle({ id: source = '', label = '' }, options) {
         const github = getClient.call(this, options)
 
-        const { bioFilter, companyFilter, andFilter, orFilter } = options
+        const { bioFilter, companyFilter, emailFilter, andFilter, orFilter } = options
 
         const filters = []
 
@@ -237,6 +244,12 @@ class githubSearchUsers extends Transform {
             const companyFilterRegex = new RegExp(companyFilter, 'i')
 
             filters.push(({ company }) => companyFilterRegex.test(company))
+        }
+
+        if (emailFilter) {
+            const emailFilterRegex = new RegExp(emailFilter, 'i')
+
+            filters.push(({ email }) => emailFilterRegex.test(email))
         }
 
         let filter = () => true
