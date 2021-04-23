@@ -8,7 +8,7 @@
     "recon": "POWN_ROOT=. pown-cli recon",
     "usage": "POWN_ROOT=. pown-cli github --help",
     "build": "true",
-    "test": "true"
+    "test": "mocha tests"
   },
   "repository": {
     "type": "git",
@@ -28,7 +28,8 @@
   "devDependencies": {
     "@pown/cli": "^2.30.0",
     "@pown/recon": "^2.138.1",
-    "@pown/toolchain": "^2.1.0"
+    "@pown/toolchain": "^2.1.0",
+    "mocha": "^8.3.2"
   },
   "dependencies": {
     "@pown/async": "^2.11.0",
