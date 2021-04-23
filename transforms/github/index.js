@@ -2,6 +2,7 @@ const { Transform } = require('@pown/recon/lib/transform')
 const { BRAND_TYPE, NICK_TYPE, STRING_TYPE } = require('@pown/recon/lib/types')
 
 const Github = require('../../lib/github')
+const { createEmailFilter, createCompanyFilter, createBioFilter } = require('../../lib/filters')
 
 const GITHUB_ORG_TYPE = 'github:org'
 const GITHUB_USER_TYPE = 'github:user'
@@ -27,7 +28,7 @@ const defaultOptions = {
         value: 0
     },
 
-    githubMaxResults: {
+    maxResults: {
         description: 'Maximum results. Used for limiting expensive search operations.',
         type: 'number',
         value: Infinity
@@ -35,9 +36,9 @@ const defaultOptions = {
 }
 
 const getClient = function(options) {
-    const { githubKey = process.env.GITHUB_KEY, retryRequest = true, retryRequestDelay = 0 } = options
+    const { githubKey = process.env.GITHUB_KEY, retryRequest = true, retryRequestDelay = 0, maxResults = Infinity } = options
 
-    const github = new Github({ githubKey, retryRequest, retryRequestDelay, scheduler: this.scheduler })
+    const github = new Github({ githubKey, retryRequest, retryRequestDelay, maxResults, scheduler: this.scheduler })
 
     github.on('info', this.emit.bind(this, 'info'))
     github.on('warn', this.emit.bind(this, 'warn'))
@@ -184,11 +185,11 @@ class githubSearchUsers extends Transform {
         return {
             ...defaultOptions,
 
-            bioFilter: {
-                description: 'Regex to filter based on bio details.',
+            emailFilter: {
+                description: 'Regex to filter based on email domain.',
                 type: 'string',
                 default: '',
-                alias: ['filter-bio']
+                alias: ['filter-email']
             },
 
             companyFilter: {
@@ -198,23 +199,44 @@ class githubSearchUsers extends Transform {
                 alias: ['filter-company']
             },
 
-            emailFilter: {
-                description: 'Regex to filter based on email domain.',
+            bioFilter: {
+                description: 'Regex to filter based on bio details.',
                 type: 'string',
                 default: '',
-                alias: ['filter-email']
+                alias: ['filter-bio']
+            },
+
+            fuzzyDomainFilter: {
+                description: 'Filter users based on fuzzy domain name criteria',
+                type: 'string',
+                default: ''
+            },
+
+            fuzzyBrandFilter: {
+                description: 'Filter users based on fuzzy brand name criteria',
+                type: 'string',
+                default: ''
             },
 
             andFilter: {
                 description: 'Treat all filters as if they are in and condition',
                 type: 'boolean',
-                default: true
+                default: true,
+                alias: ['and-filters', 'filter-and', 'filters-and']
             },
 
             orFilter: {
                 description: 'Treat all filter as if they are in or condition',
                 type: 'boolean',
-                default: false
+                default: false,
+                alias: ['or-filters', 'filter-or', 'filters-or']
+            },
+
+            maxUsers: {
+                description: 'Maximum number of users',
+                type: 'number',
+                default: Infinity,
+                alias: ['max-user', 'users-max', 'user-max']
             }
         }
     }
@@ -230,26 +252,104 @@ class githubSearchUsers extends Transform {
     async handle({ id: source = '', label = '' }, options) {
         const github = getClient.call(this, options)
 
-        const { bioFilter, companyFilter, emailFilter, andFilter, orFilter } = options
+        const { emailFilter, companyFilter, bioFilter, fuzzyDomainFilter, fuzzyBrandFilter, andFilter, orFilter, maxUsers } = options
 
         const filters = []
 
-        if (bioFilter) {
-            const bioFilterRegex = new RegExp(bioFilter, 'i')
+        if (emailFilter) {
+            const regex = new RegExp(emailFilter, 'i')
 
-            filters.push(({ bio }) => bioFilterRegex.test(bio))
+            filters.push(({ email }) => regex.test(email))
         }
 
         if (companyFilter) {
-            const companyFilterRegex = new RegExp(companyFilter, 'i')
+            const regex = new RegExp(companyFilter, 'i')
 
-            filters.push(({ company }) => companyFilterRegex.test(company))
+            filters.push(({ company }) => regex.test(company))
         }
 
-        if (emailFilter) {
-            const emailFilterRegex = new RegExp(emailFilter, 'i')
+        if (bioFilter) {
+            const regex = new RegExp(bioFilter, 'i')
 
-            filters.push(({ email }) => emailFilterRegex.test(email))
+            filters.push(({ bio }) => regex.test(bio))
+        }
+
+        const pushFuzzyEmailFilter = ({ domains, brands }) => {
+            if (domains) {
+                const f = createEmailFilter({ domains })
+
+                if (f) {
+                    const regex = new RegExp(f, 'i')
+
+                    filters.push(({ email }) => regex.test(email))
+                }
+            }
+
+            if (brands) {
+                const f = createEmailFilter({ brands })
+
+                if (f) {
+                    const regex = new RegExp(f, 'i')
+
+                    filters.push(({ email }) => regex.test(email))
+                }
+            }
+        }
+
+        const pushFuzzyCompanyFilter = ({ domains, brands }) => {
+            if (domains) {
+                const f = createCompanyFilter({ domains })
+
+                if (f) {
+                    const regex = new RegExp(f, 'i')
+
+                    filters.push(({ company }) => regex.test(company))
+                }
+            }
+
+            if (brands) {
+                const f = createCompanyFilter({ brands })
+
+                if (f) {
+                    const regex = new RegExp(f, 'i')
+
+                    filters.push(({ company }) => regex.test(company))
+                }
+            }
+        }
+
+        const pushFuzzyBioFilter = ({ domains, brands }) => {
+            if (domains) {
+                const f = createBioFilter({ domains })
+
+                if (f) {
+                    const regex = new RegExp(f, 'i')
+
+                    filters.push(({ bio }) => regex.test(bio))
+                }
+            }
+
+            if (brands) {
+                const f = createBioFilter({ brands })
+
+                if (f) {
+                    const regex = new RegExp(f, 'i')
+
+                    filters.push(({ bio }) => regex.test(bio))
+                }
+            }
+        }
+
+        if (fuzzyDomainFilter) {
+            pushFuzzyEmailFilter({ domains: fuzzyDomainFilter })
+            pushFuzzyCompanyFilter({ domains: fuzzyDomainFilter })
+            pushFuzzyBioFilter({ domains: fuzzyDomainFilter })
+        }
+
+        if (fuzzyBrandFilter) {
+            pushFuzzyEmailFilter({ brands: fuzzyBrandFilter })
+            pushFuzzyCompanyFilter({ brands: fuzzyBrandFilter })
+            pushFuzzyBioFilter({ brands: fuzzyBrandFilter })
         }
 
         let filter = () => true
@@ -266,6 +366,8 @@ class githubSearchUsers extends Transform {
 
         const results = []
 
+        let i = 0
+
         for await (let { login: user, type } of github.search(label, ['users'])) {
             if (type !== 'User') {
                 continue
@@ -274,15 +376,19 @@ class githubSearchUsers extends Transform {
             try {
                 const info = await github.user(user)
 
-                const { login, html_url: uri, avatar_url, bio, company } = info
+                const { login, html_url: uri, avatar_url, email, company, bio } = info
 
-                if (!filter({ bio: bio || '', company: company || '' })) {
+                if (!filter({ email: email || '', company: company || '', bio: bio || '' })) {
                     continue
                 }
 
                 this.info(`found user ${user}`)
 
                 results.push({ type: GITHUB_USER_TYPE, label: login, image: avatar_url, props: { login, uri, info }, edges: [source] })
+
+                if (++i >= maxUsers) {
+                    break
+                }
             }
             catch (e) {
                 this.error(e)
