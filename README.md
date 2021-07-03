@@ -6,7 +6,7 @@
 
 # Pown Github
 
-Pown Github is a library and a tool to work with the Github API. The project expors both a command line interface pown as well as a transform for @pown/recon.
+Pown Github is a library and a tool to work with the Github API. The project expors both a **pown** command and a transform for @pown/recon.
 
 ## Credits
 
@@ -76,13 +76,14 @@ pown-cli github <command>
 Github utility
 
 Commands:
-  pown-cli github user <login>     Show user
-  pown-cli github org <login>      Show org
-  pown-cli github search <term>    Search github
-  pown-cli github repos <login>    List repos
-  pown-cli github gists <login>    List gists
-  pown-cli github orgs <login>     List orgs
-  pown-cli github members <login>  List members
+  pown-cli github user <login>         Show user
+  pown-cli github org <login>          Show org
+  pown-cli github search <term>        Search github
+  pown-cli github repos <login>        List repos
+  pown-cli github gists <login>        List gists
+  pown-cli github orgs <login>         List orgs
+  pown-cli github members <login>      List members
+  pown-cli github contributors <repo>  Show contributors
 
 Options:
   --version  Show version number  [boolean]
