@@ -186,6 +186,13 @@ class githubSearchUsers extends Transform {
         return {
             ...defaultOptions,
 
+            quitIfNoFilters: {
+                description: 'Do not search if no filters specified.',
+                type: 'boolean',
+                default: false,
+                alias: ['quit-if-no-filter', 'if-no-filters-quit', 'if-no-filter-quit']
+            },
+
             emailFilter: {
                 description: 'Regex to filter based on email domain.',
                 type: 'string',
@@ -253,7 +260,7 @@ class githubSearchUsers extends Transform {
     async handle({ id: source = '', label = '' }, options) {
         const github = getClient.call(this, options)
 
-        const { emailFilter, companyFilter, bioFilter, fuzzyDomainFilter, fuzzyBrandFilter, andFilter, orFilter, maxUsers } = options
+        const { quitIfNoFilters, emailFilter, companyFilter, bioFilter, fuzzyDomainFilter, fuzzyBrandFilter, andFilter, orFilter, maxUsers } = options
 
         const filters = []
 
@@ -363,6 +370,10 @@ class githubSearchUsers extends Transform {
             if (andFilter) {
                 filter = (args) => filters.every(f => f(args))
             }
+        }
+        else
+        if (quitIfNoFilters) {
+            return []
         }
 
         const results = []
