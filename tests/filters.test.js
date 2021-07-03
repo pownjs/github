@@ -70,7 +70,6 @@ describe('filters', () => {
     describe('bio', () => {
         it('positive filters (bage)', () => {
             const values = [
-                'Google, ex-bage',
                 'Software engineer at @bage'
             ]
 
@@ -84,6 +83,7 @@ describe('filters', () => {
 
         it('negative filters (bage)', () => {
             const values = [
+                'Google, ex-bage',
                 'They/Them Data Engineering @Bage-Bionetworks',
                 'I am a bage',
                 'Senior Software Engineer within Bage\'s Product team.'

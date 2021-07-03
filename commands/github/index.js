@@ -11,5 +11,6 @@ exports.yargs = {
         yargs.command(require('./sub/gists').yargs)
         yargs.command(require('./sub/orgs').yargs)
         yargs.command(require('./sub/members').yargs)
+        yargs.command(require('./sub/contributors').yargs)
     }
 }

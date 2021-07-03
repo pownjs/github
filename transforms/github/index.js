@@ -2,6 +2,7 @@ const { Transform } = require('@pown/recon/lib/transform')
 const { BRAND_TYPE, NICK_TYPE, STRING_TYPE } = require('@pown/recon/lib/types')
 
 const Github = require('../../lib/github')
+const { extractGithubRepo } = require('../../lib/utils')
 const { createEmailFilter, createCompanyFilter, createBioFilter } = require('../../lib/filters')
 
 const GITHUB_ORG_TYPE = 'github:org'
@@ -641,6 +642,67 @@ class githubListGists extends Transform {
     }
 }
 
+class githubListContributors extends Transform {
+    static get alias() {
+        return ['github_list_contributors', 'ghlc']
+    }
+
+    static get title() {
+        return 'List GitHub Contributors'
+    }
+
+    static get description() {
+        return 'List GitHub contributors for a given repo.'
+    }
+
+    static get group() {
+        return 'GitHub Contributors'
+    }
+
+    static get tags() {
+        return ['ce']
+    }
+
+    static get types() {
+        return [GITHUB_REPO_TYPE]
+    }
+
+    static get options() {
+        return {
+            ...defaultOptions
+        }
+    }
+
+    static get priority() {
+        return 1
+    }
+
+    static get noise() {
+        return 1
+    }
+
+    async handle({ id: source = '', label = '', props = {} }, options) {
+        const github = getClient.call(this, options)
+
+        const results = []
+
+        for await (let { login: user } of github.contributors(extractGithubRepo(label, props.uri, props.url))) {
+            try {
+                const info = await github.user(user)
+
+                const { login, html_url: uri, avatar_url } = info
+
+                results.push({ type: GITHUB_USER_TYPE, label: login, image: avatar_url, props: { login, uri, info }, edges: [source] })
+            }
+            catch (e) {
+                this.error(e)
+            }
+        }
+
+        return results
+    }
+}
+
 module.exports = {
     githubUser,
     githubOrg,
@@ -648,5 +710,6 @@ module.exports = {
     githubListOrgs,
     githubListMembers,
     githubListRepos,
-    githubListGists
+    githubListGists,
+    githubListContributors
 }
